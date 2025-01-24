@@ -1,0 +1,9 @@
+{
+  "name": "!Bangs Search",
+  "description": "Quickly search using !bangs from you gnome search",
+  "uuid": "bangs-search@suvan",
+  "shell-version": [
+    "45", "46", "47"
+  ],
+  "url": "https://github.com/suvanbanerjee/gnome-bangs"
+}
