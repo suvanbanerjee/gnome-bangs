@@ -18,7 +18,6 @@
 
 import Gio from 'gi://Gio';
 import St from 'gi://St';
-
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 
@@ -28,66 +27,26 @@ class BangsProvider {
         this.bangsData = extension.bangsData;
     }
 
-    get appInfo() {
-        return null;
-    }
-
-    get canLaunchSearch() {
-        return true;
-    }
-
     get id() {
         return this._extension.uuid;
     }
 
     activateResult(result, terms) {
-        const context = new Gio.AppLaunchContext();
-
-        // Get bang key (e.g., "!g") and query
         const input = terms.join(' ');
         const match = input.match(/^!(\S+)\s+(.+)$/);
 
         if (match) {
-            const bangKey = match[1];
-            const query = match[2];
-
+            const [_, bangKey, query] = match;
             const bang = this.bangsData.find((b) => b.key === bangKey);
+
             if (bang) {
-                const url = bang.url.replace('{query}', encodeURI(query));
+                const url = bang.url.replace('{query}', encodeURIComponent(query));
                 Gio.AppInfo.launch_default_for_uri(url, null);
             }
         }
     }
 
-    launchSearch(terms) {
-        return null;
-    }
-
-    createResultObject(meta) {
-        return null;
-    }
-
-    getResultMetas(results, cancellable = null) {
-        const gicon = Gio.icon_new_for_string(this._extension.path + '/bang.png');
-        const { scaleFactor } = St.ThemeContext.get_for_stage(global.stage);
-
-        return new Promise((resolve) => {
-            const resultMetas = results.map((identifier) => ({
-                id: identifier,
-                name: 'Bangs Search',
-                description: 'Use a bang (!bang) to search specific services',
-                createIcon: (size) => new St.Icon({
-                    gicon,
-                    width: size * scaleFactor,
-                    height: size * scaleFactor,
-                    icon_size: size * scaleFactor,
-                }),
-            }));
-            resolve(resultMetas);
-        });
-    }
-
-    getInitialResultSet(terms, cancellable = null) {
+    getInitialResultSet(terms) {
         const input = terms.join(' ');
         const match = input.match(/^!(\w+)\s+/);
 
@@ -96,18 +55,32 @@ class BangsProvider {
             const bang = this.bangsData.find((b) => b.key === bangKey);
 
             if (bang) {
-                return new Promise((resolve) => resolve(['Bang Search']));
+                return Promise.resolve(['Bang Search']);
             }
         }
-        return new Promise((resolve) => resolve([]));
-    }
-
-    getSubsearchResultSet(results, terms, cancellable = null) {
-        return this.getInitialResultSet(terms, cancellable);
+        return Promise.resolve([]);
     }
 
     filterResults(results, maxResults) {
         return results.slice(0, maxResults);
+    }
+
+    getResultMetas(results) {
+        const gicon = Gio.icon_new_for_string(`${this._extension.path}/bang.png`);
+        const { scaleFactor } = St.ThemeContext.get_for_stage(global.stage);
+
+        return Promise.resolve(
+            results.map(() => ({
+                id: 'Bang Search',
+                name: 'Bangs Search',
+                description: 'Use a bang (!bang) to search specific services',
+                createIcon: (size) => new St.Icon({
+                    gicon,
+                    width: size * scaleFactor,
+                    height: size * scaleFactor,
+                }),
+            }))
+        );
     }
 }
 
@@ -121,28 +94,23 @@ export default class MyExtension extends Extension {
     _loadBangs() {
         const bangsFile = this.dir.get_child('bangs.json');
         const [, contents] = bangsFile.load_contents(null);
-        const decoder = new TextDecoder();
-        this.bangsData = JSON.parse(decoder.decode(contents));
-    }
-
-    _unloadBangs() {
-        this.bangsData = null;
+        this.bangsData = JSON.parse(new TextDecoder().decode(contents));
     }
 
     enable() {
         this._loadBangs();
 
-        if (this._provider === null) {
+        if (!this._provider) {
             this._provider = new BangsProvider(this);
             Main.overview.searchController.addProvider(this._provider);
         }
     }
 
     disable() {
-        if (this._provider instanceof BangsProvider) {
+        if (this._provider) {
             Main.overview.searchController.removeProvider(this._provider);
             this._provider = null;
         }
-        this._unloadBangs();
+        this.bangsData = null;
     }
 }

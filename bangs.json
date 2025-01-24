@@ -3,7 +3,7 @@
   { "key": "yt", "name": "YouTube", "url": "https://www.youtube.com/results?search_query={query}" },
   { "key": "w", "name": "Wikipedia", "url": "https://en.wikipedia.org/wiki/Special:Search?search={query}" },
   { "key": "a", "name": "Amazon", "url": "https://www.amazon.com/s?k={query}" },
-  { "key": "amz", "name": "Amazon India", "url": "https://www.amazon.in/s?k={query}" },
+  { "key": "amzn", "name": "Amazon India", "url": "https://www.amazon.in/s?k={query}" },
   { "key": "gh", "name": "GitHub", "url": "https://github.com/search?q={query}" },
   { "key": "r", "name": "Reddit", "url": "https://www.reddit.com/search/?q={query}" },
   { "key": "so", "name": "Stack Overflow", "url": "https://stackoverflow.com/search?q={query}" },
