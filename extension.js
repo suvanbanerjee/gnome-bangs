@@ -53,9 +53,8 @@ class BangsProvider {
 
             const bang = this.bangsData.find((b) => b.key === bangKey);
             if (bang) {
-                const url = bang.url.replace('{query}', encodeURIComponent(query));
-                const cmd = `xdg-open "${url}"`;
-                Gio.AppInfo.create_from_commandline(cmd, null, 2).launch([], context);
+                const url = bang.url.replace('{query}', encodeURI(query));
+                Gio.AppInfo.launch_default_for_uri(url, null);
             }
         }
     }
