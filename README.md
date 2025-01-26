@@ -4,6 +4,8 @@
 
 Bangs Search is a GNOME Shell extension that allows you to quickly search using !bangs from your GNOME search. It is inspired by DuckDuckGo's !bangs feature.
 
+[<img src="https://raw.githubusercontent.com/andyholmes/gnome-shell-extensions-badge/master/get-it-on-ego.svg?sanitize=true" height="100">](https://extensions.gnome.org/extension/7824/bangs-search/)
+
 ## Usage
 
 To use Bangs Search, simply type `!` followed by the bang command you want to use in the GNOME search bar. For example, to search for `!w` in Wikipedia, type `!w GNOME` or for google search, type `!g GNOME`.

@@ -62,7 +62,7 @@ class BangsProvider {
     }
 
     filterResults(results, maxResults) {
-        return results.slice(0, maxResults);
+        return results.filter(result => result === 'Bang Search').slice(0, maxResults);
     }
 
     getResultMetas(results) {
@@ -84,7 +84,7 @@ class BangsProvider {
     }
 }
 
-export default class MyExtension extends Extension {
+export default class BangSearch extends Extension {
     constructor(meta) {
         super(meta);
         this._provider = null;

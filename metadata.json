@@ -1,6 +1,6 @@
 {
   "name": "!Bangs Search",
-  "description": "Quickly search using !bangs from you gnome search",
+  "description": "Quickly search using !bangs from your GNOME search. This feature allows you to perform quick searches directly from the GNOME search bar using DuckDuckGo's !bang syntax. !bangs are shortcuts that quickly take you to search results on other sites. For example, typing '!w gnome' will search Wikipedia for gnome,To use this feature, simply open the GNOME search bar and type a !bang command followed by your search query. For example, to search for 'Gnome' on Google, type '!g gnome' and press Enter. This will search gnome in google and open new tab in your default web browser.",
   "uuid": "bangs-search@suvan",
   "shell-version": [
     "45", "46", "47"
