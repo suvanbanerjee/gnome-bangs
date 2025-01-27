@@ -90,7 +90,7 @@ export default class BangsSearchPreferences extends ExtensionPreferences {
                 bang.url.startsWith('http')
         );
 
-        const file = Gio.File.new_for_path(`${this.path}/bangs.json`);
+        const file = Gio.File.new_for_path(`${GLib.get_user_config_dir()}/bangs.json`);
         file.replace_contents(JSON.stringify(validatedBangs, null, 2), null, false, Gio.FileCreateFlags.NONE, null);
         console.log(_('Custom bangs saved.'));
     }
@@ -100,7 +100,7 @@ export default class BangsSearchPreferences extends ExtensionPreferences {
     }
 
     _loadBangsFromFile() {
-        const file = Gio.File.new_for_path(`${this.path}/bangs.json`);
+        const file = Gio.File.new_for_path(`${GLib.get_user_config_dir()}/bangs.json`);
         if (file.query_exists(null)) {
             const [, contents] = file.load_contents(null);
             return JSON.parse(new TextDecoder().decode(contents));

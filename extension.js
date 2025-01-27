@@ -90,7 +90,7 @@ export default class BangSearch extends Extension {
     }
 
     _loadBangs() {
-        const bangsFile = this.dir.get_child('bangs.json');
+        const bangsFile = Gio.File.new_for_path(`${GLib.get_user_config_dir()}/bangs.json`);
         try {
             const [, contents] = bangsFile.load_contents(null);
             this.bangsData = JSON.parse(new TextDecoder().decode(contents));
