@@ -104,7 +104,9 @@ export default class BangsSearchPreferences extends ExtensionPreferences {
         if (file.query_exists(null)) {
             const [, contents] = file.load_contents(null);
             return JSON.parse(new TextDecoder().decode(contents));
+        } else {
+            file.create(Gio.FileCreateFlags.NONE, null);
+            return [];
         }
-        return [];
     }
 }

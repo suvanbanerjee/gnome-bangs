@@ -10,7 +10,6 @@ install: compile-schemas
 	mkdir -p $(EXTENSION_DIR)
 	cp extension.js $(EXTENSION_DIR)/
 	cp prefs.js $(EXTENSION_DIR)/
-	cp bangs.json $(EXTENSION_DIR)/
 	cp metadata.json $(EXTENSION_DIR)/
 	cp bang.png $(EXTENSION_DIR)/
 	mkdir -p $(EXTENSION_DIR)/schemas

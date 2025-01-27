@@ -91,8 +91,12 @@ export default class BangSearch extends Extension {
 
     _loadBangs() {
         const bangsFile = this.dir.get_child('bangs.json');
-        const [, contents] = bangsFile.load_contents(null);
-        this.bangsData = JSON.parse(new TextDecoder().decode(contents));
+        try {
+            const [, contents] = bangsFile.load_contents(null);
+            this.bangsData = JSON.parse(new TextDecoder().decode(contents));
+        } catch (e) {
+            this.bangsData = [];
+        }
     }
 
     enable() {
