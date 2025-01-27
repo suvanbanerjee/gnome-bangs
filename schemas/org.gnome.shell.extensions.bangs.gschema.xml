@@ -1,0 +1,13 @@
+<schemalist>
+  <schema id="org.gnome.shell.extensions.bangs"
+          path="/org/gnome/shell/extensions/bangs/">
+    <key name="custom-bangs" type="as">
+      <default>[]</default>
+      <summary>Custom Bangs</summary>
+      <description>
+        A list of custom bangs where each entry is a JSON object containing
+        the keys "key" and "url". Example: [{"key":"g","url":"https://google.com/search?q={query}"}].
+      </description>
+    </key>
+  </schema>
+</schemalist>

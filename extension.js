@@ -33,16 +33,19 @@ class BangsProvider {
 
     activateResult(result, terms) {
         const input = terms.join(' ');
-        const match = input.match(/^!(\S+)\s+(.+)$/);
+        const encodedQuery = encodeURIComponent(input);
 
+        // Check for custom bangs first
+        const match = input.match(/^!(\S+)\s+(.+)$/);
         if (match) {
             const [_, bangKey, query] = match;
             const bang = this.bangsData.find((b) => b.key === bangKey);
-
+            let url = `https://duckduckgo.com/?t=h_&q=!${bangKey}+${encodeURIComponent(query)}`;
             if (bang) {
-                const url = bang.url.replace('{query}', encodeURIComponent(query));
-                Gio.AppInfo.launch_default_for_uri(url, null);
+                url = bang.url.replace('{query}', encodeURIComponent(query));
             }
+            Gio.AppInfo.launch_default_for_uri(url, null);
+            return;
         }
     }
 
@@ -51,12 +54,7 @@ class BangsProvider {
         const match = input.match(/^!(\w+)\s+/);
 
         if (match) {
-            const bangKey = match[1];
-            const bang = this.bangsData.find((b) => b.key === bangKey);
-
-            if (bang) {
-                return Promise.resolve(['Bang Search']);
-            }
+            return Promise.resolve(['Bang Search']);
         }
         return Promise.resolve([]);
     }
