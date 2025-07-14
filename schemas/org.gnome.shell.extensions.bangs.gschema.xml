@@ -9,5 +9,20 @@
         the keys "key" and "url". Example: [{"key":"g","url":"https://google.com/search?q={query}"}].
       </description>
     </key>
+    <key name="default-search-engine" type="s">
+      <default>'https://duckduckgo.com/?q={query}'</default>
+      <summary>Default Search Engine</summary>
+      <description>
+        The default search engine URL to use when no bang is specified. 
+        The URL should contain "{query}" which will be replaced with the search terms.
+      </description>
+    </key>
+    <key name="enable-default-search" type="b">
+      <default>true</default>
+      <summary>Enable Default Search</summary>
+      <description>
+        Whether to show default search results when no bang is specified.
+      </description>
+    </key>
   </schema>
 </schemalist>

@@ -8,6 +8,85 @@ export default class BangsSearchPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
         const settings = this.getSettings();
         const page = new Adw.PreferencesPage();
+        
+        // Default Search Engine section
+        const defaultGroup = new Adw.PreferencesGroup({
+            title: _('Default Search Engine'),
+            description: _('Set the default search engine to use when no bang is specified.'),
+        });
+
+        // Enable/Disable toggle
+        const enableSwitch = new Gtk.Switch({
+            active: settings.get_boolean('enable-default-search'),
+            valign: Gtk.Align.CENTER,
+        });
+
+        enableSwitch.connect('notify::active', () => {
+            settings.set_boolean('enable-default-search', enableSwitch.active);
+            defaultSearchEntry.sensitive = enableSwitch.active;
+            presetBox.sensitive = enableSwitch.active;
+        });
+
+        const enableRow = new Adw.ActionRow({
+            title: _('Enable Default Search'),
+            subtitle: _('Show search results when no bang is specified'),
+        });
+        enableRow.add_suffix(enableSwitch);
+        defaultGroup.add(enableRow);
+
+        const defaultSearchEntry = new Gtk.Entry({
+            placeholder_text: _('https://duckduckgo.com/?q={query}'),
+            hexpand: true,
+            text: settings.get_string('default-search-engine'),
+            sensitive: settings.get_boolean('enable-default-search'),
+        });
+
+        defaultSearchEntry.connect('changed', () => {
+            const url = defaultSearchEntry.text;
+            if (url.includes('{query}') && url.startsWith('http')) {
+                settings.set_string('default-search-engine', url);
+            }
+        });
+
+        const defaultRow = new Adw.ActionRow({
+            title: _('Default Search Engine URL'),
+            subtitle: _('URL must contain "{query}" placeholder'),
+        });
+        defaultRow.add_suffix(defaultSearchEntry);
+        defaultGroup.add(defaultRow);
+
+        // Quick preset buttons
+        const presetEngines = [
+            { name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q={query}' },
+            { name: 'Google', url: 'https://www.google.com/search?q={query}' },
+            { name: 'Bing', url: 'https://www.bing.com/search?q={query}' },
+            { name: 'Startpage', url: 'https://www.startpage.com/sp/search?query={query}' },
+        ];
+
+        const presetBox = new Gtk.Box({
+            orientation: Gtk.Orientation.HORIZONTAL,
+            spacing: 10,
+            margin_top: 10,
+            halign: Gtk.Align.CENTER,
+            sensitive: settings.get_boolean('enable-default-search'),
+        });
+
+        presetEngines.forEach(engine => {
+            const button = new Gtk.Button({ label: engine.name });
+            button.connect('clicked', () => {
+                defaultSearchEntry.text = engine.url;
+                settings.set_string('default-search-engine', engine.url);
+            });
+            presetBox.append(button);
+        });
+
+        const presetRow = new Adw.ActionRow({
+            title: _('Quick Presets'),
+        });
+        presetRow.add_suffix(presetBox);
+        defaultGroup.add(presetRow);
+
+        // Custom Bangs section
         const group = new Adw.PreferencesGroup({
             title: _('Custom Bangs'),
             description: _('Add or modify custom bangs. Ensure URLs include "{query}".'),
@@ -69,6 +148,7 @@ export default class BangsSearchPreferences extends ExtensionPreferences {
             margin_top: 10,
         });
         addGroup.add(restartLabel);
+        page.add(defaultGroup);
         page.add(group);
         page.add(addGroup);
         window.add(page);
