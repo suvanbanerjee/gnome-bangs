@@ -26,6 +26,7 @@ class BangsProvider {
     constructor(extension) {
         this._extension = extension;
         this.bangsData = extension.bangsData;
+        this._settings = extension._settings;
     }
 
     get id() {
@@ -48,20 +49,34 @@ class BangsProvider {
             Gio.AppInfo.launch_default_for_uri(url, null);
             return;
         }
+
+        // Use default search engine for non-bang searches
+        if (input.trim()) {
+            const defaultSearchEngine = this._settings.get_string('default-search-engine');
+            const url = defaultSearchEngine.replace('{query}', encodeURIComponent(input));
+            Gio.AppInfo.launch_default_for_uri(url, null);
+        }
     }
 
     getInitialResultSet(terms) {
         const input = terms.join(' ');
         const match = input.match(/^!(\w+)\s+/);
 
+        // Show results for bang searches
         if (match) {
             return Promise.resolve(['Bang Search']);
         }
+        
+        // Show results for any non-empty search query (default search engine) if enabled
+        if (input.trim() && this._settings.get_boolean('enable-default-search')) {
+            return Promise.resolve(['Default Search']);
+        }
+        
         return Promise.resolve([]);
     }
 
     filterResults(results, maxResults) {
-        return results.filter(result => result === 'Bang Search').slice(0, maxResults);
+        return results.filter(result => result === 'Bang Search' || result === 'Default Search').slice(0, maxResults);
     }
 
     getResultMetas(results) {
@@ -69,17 +84,44 @@ class BangsProvider {
         const { scaleFactor } = St.ThemeContext.get_for_stage(global.stage);
 
         return Promise.resolve(
-            results.map(() => ({
-                id: 'Bang Search',
-                name: 'Bangs Search',
-                description: 'Use a bang (!bang) to search specific services',
-                createIcon: (size) => new St.Icon({
-                    gicon,
-                    width: size * scaleFactor,
-                    height: size * scaleFactor,
-                }),
-            }))
+            results.map((result) => {
+                if (result === 'Bang Search') {
+                    return {
+                        id: 'Bang Search',
+                        name: 'Bangs Search',
+                        description: 'Use a bang (!bang) to search specific services',
+                        createIcon: (size) => new St.Icon({
+                            gicon,
+                            width: size * scaleFactor,
+                            height: size * scaleFactor,
+                        }),
+                    };
+                } else if (result === 'Default Search') {
+                    const defaultSearchEngine = this._settings.get_string('default-search-engine');
+                    const engineName = this._getSearchEngineName(defaultSearchEngine);
+                    return {
+                        id: 'Default Search',
+                        name: 'Default Search',
+                        description: 'Search using default search engine (' + engineName + ')',
+                        createIcon: (size) => new St.Icon({
+                            gicon,
+                            width: size * scaleFactor,
+                            height: size * scaleFactor,
+                        }),
+                    };
+                }
+            })
         );
+    }
+
+    _getSearchEngineName(url) {
+        if (url.includes('google.com')) return 'Google';
+        if (url.includes('duckduckgo.com')) return 'DuckDuckGo';
+        if (url.includes('bing.com')) return 'Bing';
+        if (url.includes('yahoo.com')) return 'Yahoo';
+        if (url.includes('startpage.com')) return 'Startpage';
+        if (url.includes('searx')) return 'SearX';
+        return 'Default Engine';
     }
 }
 
@@ -88,6 +130,7 @@ export default class BangSearch extends Extension {
         super(meta);
         this._provider = null;
         this.bangsData = null;
+        this._settings = null;
     }
 
     _loadBangs() {
@@ -101,6 +144,7 @@ export default class BangSearch extends Extension {
     }
 
     enable() {
+        this._settings = this.getSettings();
         this._loadBangs();
 
         if (!this._provider) {
@@ -115,5 +159,6 @@ export default class BangSearch extends Extension {
             this._provider = null;
         }
         this.bangsData = null;
+        this._settings = null;
     }
 }
